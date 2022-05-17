@@ -4,9 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Start All",
+            "type": "shell",
+            "command": "F:/Toontown/OpenToontown/win32/start_all.bat",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Windows - Start Game",
             "type": "shell",
-            "command": "./start_game.bat",
+            "command": "F:/Toontown/OpenToontown/win32//start_game.bat",
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -16,7 +30,7 @@
         {
             "label": "Windows - Start AI Server",
             "type": "shell",
-            "command": "./start_ai_server.bat",
+            "command": "F:/Toontown/OpenToontown/win32//start_ai_server.bat",
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -26,7 +40,7 @@
         {
             "label": "Windows - Start Astron Server",
             "type": "shell",
-            "command": "./start_astron_server.bat",
+            "command": "F:/Toontown/OpenToontown/win32//start_astron_server.bat",
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -36,12 +50,12 @@
         {
             "label": "Windows - Start UberDOG Server",
             "type": "shell",
-            "command": "./start_uberdog_server.bat",
+            "command": "F:/Toontown/OpenToontown/win32//start_uberdog_server.bat",
             "group": "test",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
             }
-        },
+        }
     ]
   }
