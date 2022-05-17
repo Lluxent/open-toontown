@@ -20,4 +20,3 @@ venv/
 PPYTHON_PATH
 local/
 errorCode
-!win32/
