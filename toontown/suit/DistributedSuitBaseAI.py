@@ -1,5 +1,6 @@
 from otp.ai.AIBaseGlobal import *
 from otp.avatar import DistributedAvatarAI
+from toontown.toonbase import ToontownBattleGlobals
 from . import SuitPlannerBase, SuitBase, SuitDNA
 from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import SuitBattleGlobals
@@ -18,6 +19,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         self.virtual = 0
         self.skeleRevives = 0
         self.maxSkeleRevives = 0
+        self.executive = 0
         self.reviveFlag = 0
         self.buildingHeight = None
         return
@@ -85,6 +87,26 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
 
     def d_denyBattle(self, toonId):
         self.sendUpdateToAvatarId(toonId, 'denyBattle', [])
+
+    def b_setExecutive(self, executive):
+        if executive == None:
+            executive = 0
+        self.setExecutive(executive)
+        self.d_setExecutive(self.getExecutive())
+
+    def d_setExecutive(self, executive):
+        self.sendUpdate('setExecutive', [executive])
+
+    def getExecutive(self):
+        return self.executive
+
+    def setExecutive(self, executive):
+        if executive == None:
+            executive = 0
+        self.executive = executive
+        if self.executive:
+            self.maxHP = int(self.maxHP * ToontownBattleGlobals.EXECUTIVE_HP_MULT)
+            self.currHP = self.maxHP
 
     def b_setSkeleRevives(self, num):
         if num == None:

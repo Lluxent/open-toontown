@@ -1,3 +1,4 @@
+from toontown.toonbase import ToontownBattleGlobals
 from .BattleBase import *
 from .DistributedBattleAI import *
 from toontown.toonbase.ToontownBattleGlobals import *
@@ -1172,6 +1173,8 @@ class BattleCalculatorAI:
                         theSuit = self.battle.findSuit(attack[SUIT_ID_COL])
                         atkInfo = SuitBattleGlobals.getSuitAttack(theSuit.dna.name, theSuit.getLevel(), atkType)
                         result = atkInfo['hp']
+                        if theSuit.getExecutive():
+                            result = int(result * ToontownBattleGlobals.EXECUTIVE_DMG_MULT)
             targetIndex = self.battle.activeToons.index(toonId)
             attack[SUIT_HP_COL][targetIndex] = result
 
