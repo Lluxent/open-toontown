@@ -1,3 +1,4 @@
+from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 import types
 from direct.fsm import StateData
@@ -10,9 +11,10 @@ from . import TownBattleSOSPanel
 from . import TownBattleSOSPetSearchPanel
 from . import TownBattleSOSPetInfoPanel
 from . import TownBattleToonPanel
+from . import TownBattleSuitPanel
 from toontown.toontowngui import TTDialog
 from direct.directnotify import DirectNotifyGlobal
-from toontown.battle import BattleBase
+from toontown.battle import BattleBase, SuitBattleGlobals
 from toontown.toonbase import ToontownTimer
 from direct.showbase import PythonUtil
 from toontown.toonbase import TTLocalizer
@@ -30,6 +32,7 @@ class TownBattle(StateData.StateData):
 
     def __init__(self, doneEvent):
         StateData.StateData.__init__(self, doneEvent)
+        self.cogs = []
         self.numCogs = 1
         self.creditLevel = None
         self.luredIndices = []
@@ -121,14 +124,13 @@ class TownBattle(StateData.StateData):
         self.SOSPetInfoPanel = TownBattleSOSPetInfoPanel.TownBattleSOSPetInfoPanel(self.SOSPetInfoPanelDoneEvent)
         self.fireCogPanelDoneEvent = 'fire-cog-panel-done'
         self.FireCogPanel = FireCogPanel.FireCogPanel(self.fireCogPanelDoneEvent)
-        self.cogFireCosts = [None,
-         None,
-         None,
-         None]
-        self.toonPanels = (TownBattleToonPanel.TownBattleToonPanel(0),
-         TownBattleToonPanel.TownBattleToonPanel(1),
-         TownBattleToonPanel.TownBattleToonPanel(2),
-         TownBattleToonPanel.TownBattleToonPanel(3))
+        self.cogFireCosts = [None] * SuitBattleGlobals.MAX_SUIT_CAPACITY
+        self.toonPanels = []
+        self.suitPanels = []
+        for i in range(ToontownBattleGlobals.MAX_TOON_CAPACITY):
+            self.toonPanels.append(TownBattleToonPanel.TownBattleToonPanel(i))
+        for i in range(SuitBattleGlobals.MAX_SUIT_CAPACITY):
+            self.suitPanels.append(TownBattleSuitPanel.TownBattleSuitPanel(i))
         self.timer = ToontownTimer.ToontownTimer()
         self.timer.setPos(1.182, 0, -0.842)
         self.timer.setScale(0.4)
@@ -151,10 +153,12 @@ class TownBattle(StateData.StateData):
         del self.SOSPetInfoPanel
         for toonPanel in self.toonPanels:
             toonPanel.cleanup()
-
+        for suitPanel in self.suitPanels:
+            suitPanel.cleanup()
         del self.toonPanels
         self.timer.destroy()
         del self.timer
+        del self.cogs
         del self.toons
 
     def enter(self, event, parentFSMState, bldg = 0, creditMultiplier = 1, tutorialFlag = 0):
@@ -219,6 +223,15 @@ class TownBattle(StateData.StateData):
         self.timer.setTime(time)
         return None
 
+    def __suitPanels(self, num):
+        for panel in self.suitPanels:
+            panel.hide()
+            panel.setPos(0, 0, 0.7)
+
+        for i in range(num):
+            self.suitPanels[i].setX(((num - 1) * 0.25) - (i * 0.5))
+            self.suitPanels[i].show()
+
     def __enterPanels(self, num, localNum):
         self.notify.debug('enterPanels() num: %d localNum: %d' % (num, localNum))
         for toonPanel in self.toonPanels:
@@ -253,12 +266,12 @@ class TownBattle(StateData.StateData):
             self.notify.error('Bad number of toons: %s' % num)
         return None
 
-    def updateChosenAttacks(self, battleIndices, tracks, levels, targets):
+    def updateChosenAttacks(self, battleIndices, tracks, levels, targets, toonCount = 4):
         self.notify.debug('updateChosenAttacks bi=%s tracks=%s levels=%s targets=%s' % (battleIndices,
          tracks,
          levels,
          targets))
-        for i in range(4):
+        for i in range(toonCount):
             if battleIndices[i] == -1:
                 pass
             else:
@@ -291,11 +304,7 @@ class TownBattle(StateData.StateData):
 
     def chooseDefaultTarget(self):
         if self.track > -1:
-            response = {}
-            response['mode'] = 'Attack'
-            response['track'] = self.track
-            response['level'] = self.level
-            response['target'] = self.target
+            response = {'mode': 'Attack', 'track': self.track, 'level': self.level, 'target': self.target}
             messenger.send(self.battleEvent, [response])
             return 1
         return 0
@@ -307,6 +316,8 @@ class TownBattle(StateData.StateData):
         if self.isLoaded:
             for toonPanel in self.toonPanels:
                 toonPanel.hide()
+            for suitPanel in self.suitPanels:
+                suitPanel.hide()
 
         self.toonAttacks = [(-1, 0, 0),
          (-1, 0, 0),
@@ -320,6 +331,7 @@ class TownBattle(StateData.StateData):
     def exitOff(self):
         if self.isLoaded:
             self.__enterPanels(self.numToons, self.localNum)
+            self.__suitPanels(self.numCogs)
         self.timer.show()
         self.track = -1
         self.level = -1
@@ -426,11 +438,11 @@ class TownBattle(StateData.StateData):
         return (canHeal, canTrap, canLure)
 
     def adjustCogsAndToons(self, cogs, luredIndices, trappedIndices, toons):
-        numCogs = len(cogs)
-        self.notify.debug('adjustCogsAndToons() numCogs: %s self.numCogs: %s' % (numCogs, self.numCogs))
+        cogIds = map(lambda cog: cog.doId, cogs)
+        self.notify.debug('adjustCogsAndToons() cogIds: %s self.cogs: %s' % (cogIds, self.cogs))
         self.notify.debug('adjustCogsAndToons() luredIndices: %s self.luredIndices: %s' % (luredIndices, self.luredIndices))
         self.notify.debug('adjustCogsAndToons() trappedIndices: %s self.trappedIndices: %s' % (trappedIndices, self.trappedIndices))
-        toonIds = [toon.doId for toon in toons]
+        toonIds = map(lambda toon: toon.doId, toons)
         self.notify.debug('adjustCogsAndToons() toonIds: %s self.toons: %s' % (toonIds, self.toons))
         maxSuitLevel = 0
         cogFireCostIndex = 0
@@ -440,12 +452,12 @@ class TownBattle(StateData.StateData):
             cogFireCostIndex += 1
 
         creditLevel = maxSuitLevel
-        if numCogs == self.numCogs and creditLevel == self.creditLevel and luredIndices == self.luredIndices and trappedIndices == self.trappedIndices and toonIds == self.toons:
+        if cogIds == self.cogs and creditLevel == self.creditLevel and luredIndices == self.luredIndices and trappedIndices == self.trappedIndices and toonIds == self.toons:
             resetActivateMode = 0
         else:
             resetActivateMode = 1
         self.notify.debug('adjustCogsAndToons() resetActivateMode: %s' % resetActivateMode)
-        self.numCogs = numCogs
+        self.numCogs = len(cogs)
         self.creditLevel = creditLevel
         self.luredIndices = luredIndices
         self.trappedIndices = trappedIndices
@@ -455,8 +467,12 @@ class TownBattle(StateData.StateData):
         currStateName = self.fsm.getCurrentState().getName()
         if resetActivateMode:
             self.__enterPanels(self.numToons, self.localNum)
+            self.__suitPanels(self.numCogs)
             for i in range(len(toons)):
                 self.toonPanels[i].setLaffMeter(toons[i])
+
+            for i in range(self.numCogs):
+                self.suitPanels[i].setCogInformation(cogs[i])
 
             if currStateName == 'ChooseCog':
                 self.chooseCogPanel.adjustCogs(self.numCogs, self.luredIndices, self.trappedIndices, self.track)

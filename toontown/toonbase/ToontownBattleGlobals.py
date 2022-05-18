@@ -1,6 +1,7 @@
 from .ToontownGlobals import *
 import math
 from . import TTLocalizer
+MAX_TOON_CAPACITY = 4
 BattleCamFaceOffFov = 30.0
 BattleCamFaceOffPos = Point3(0, -10, 4)
 BattleCamDefaultPos = Point3(0, -8.6, 16.5)

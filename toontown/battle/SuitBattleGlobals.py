@@ -6,6 +6,8 @@ from toontown.toonbase import TTLocalizer
 notify = DirectNotifyGlobal.directNotify.newCategory('SuitBattleGlobals')
 debugAttackSequence = {}
 
+MAX_SUIT_CAPACITY = 4
+
 def pickFromFreqList(freqList):
     randNum = random.randint(0, 99)
     count = 0
