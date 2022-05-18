@@ -1944,6 +1944,7 @@ AvatarPanelIgnoreCant = 'Okay'
 AvatarPanelStopIgnoring = 'Stop Ignoring'
 AvatarPanelReport = 'Report'
 AvatarPanelCogLevel = 'Level: %s'
+AvatarPanelCogHealth = 'HP: %s/%s'
 AvatarPanelCogDetailClose = lClose
 AvatarPanelDetail = 'Toon Details'
 AvatarPanelGroupInvite = 'Invite'
