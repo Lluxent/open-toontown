@@ -344,6 +344,7 @@ class Suit(Avatar.Avatar):
         self.healthCondition = 0
         self.isDisguised = 0
         self.isWaiter = 0
+        self.isExecutive = 0
         self.isRental = 0
         return
 
@@ -718,6 +719,24 @@ class Suit(Avatar.Avatar):
         else:
             __doItTheOldWay__()
 
+    def makeExecutive(self, modelRoot = None):
+        if not modelRoot:
+            modelRoot = self
+        self.isExecutive = 1
+        torsoTex = loader.loadTexture('phase_3.5/maps/e_blazer_' + self.style.dept + '.png')
+        torsoTex.setMinfilter(Texture.FTNearestMipmapLinear)
+        torsoTex.setMagfilter(Texture.FTNearest)
+        legTex = loader.loadTexture('phase_3.5/maps/e_leg_' + self.style.dept + '.png')
+        legTex.setMinfilter(Texture.FTNearestMipmapLinear)
+        legTex.setMagfilter(Texture.FTNearest)
+        armTex = loader.loadTexture('phase_3.5/maps/e_sleeve_' + self.style.dept + '.png')
+        armTex.setMinfilter(Texture.FTNearestMipmapLinear)
+        armTex.setMagfilter(Texture.FTNearest)
+        modelRoot.find('**/torso').setTexture(torsoTex, 1)
+        modelRoot.find('**/arms').setTexture(armTex, 1)
+        modelRoot.find('**/legs').setTexture(legTex, 1)
+        modelRoot.find('**/hands').setColor(self.handColor)
+
     def makeWaiter(self, modelRoot = None):
         if not modelRoot:
             modelRoot = self
@@ -902,7 +921,7 @@ class Suit(Avatar.Avatar):
         self.healthCondition = 0
         return
 
-    def getLoseActor(self):
+    def getLoseActor(self, headless = 0):
         if ConfigVariableBool('want-new-cogs', 0).value:
             if self.find('**/body'):
                 return self
@@ -913,11 +932,14 @@ class Suit(Avatar.Avatar):
                 loseAnim = 'phase_' + str(phase) + filePrefix + 'lose'
                 self.loseActor = Actor.Actor(loseModel, {'lose': loseAnim})
                 loseNeck = self.loseActor.find('**/joint_head')
-                for part in self.headParts:
-                    part.instanceTo(loseNeck)
+                if headless is False:
+                    for part in self.headParts:
+                        part.instanceTo(loseNeck)
 
                 if self.isWaiter:
                     self.makeWaiter(self.loseActor)
+                elif self.isExecutive:
+                    self.makeExecutive(self.loseActor)
                 else:
                     self.setSuitClothes(self.loseActor)
             else:
@@ -926,6 +948,7 @@ class Suit(Avatar.Avatar):
                 loseAnim = 'phase_' + str(phase) + filePrefix + 'lose'
                 self.loseActor = Actor.Actor(loseModel, {'lose': loseAnim})
                 self.generateCorporateTie(self.loseActor)
+                self.setExecutiveColor(self.loseActor)
         self.loseActor.setScale(self.scale)
         self.loseActor.setPos(self.getPos())
         self.loseActor.setHpr(self.getHpr())
@@ -977,6 +1000,7 @@ class Suit(Avatar.Avatar):
             dropShadow.setScale(0.75)
             if not self.shadowJoint.isEmpty():
                 dropShadow.reparentTo(self.shadowJoint)
+        self.setExecutiveColor()
         self.loop(anim)
         self.isSkeleton = 1
 
@@ -1001,3 +1025,16 @@ class Suit(Avatar.Avatar):
             return SkelSuitDialogArray
         else:
             return SuitDialogArray
+
+    def setExecutiveColor(self, modelRoot = None):
+        if not modelRoot:
+            modelRoot = self
+        if self.isExecutive:
+            if self.dna.dept == 'c':
+                modelRoot.setColor(SuitDNA.corpPolyColor)
+            if self.dna.dept == 's':
+                modelRoot.setColor(SuitDNA.salesPolyColor)
+            if self.dna.dept == 'l':
+                modelRoot.setColor(SuitDNA.legalPolyColor)
+            if self.dna.dept == 'm':
+                modelRoot.setColor(SuitDNA.moneyPolyColor)

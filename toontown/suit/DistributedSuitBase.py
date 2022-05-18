@@ -77,6 +77,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
     def processExecutive(self):
         self.maxHP = int(self.maxHP * ToontownBattleGlobals.EXECUTIVE_HP_MULT)
         self.currHP = self.maxHP
+        self.makeExecutive()
         nameInfo = self.createNameInfo()
         self.setDisplayName(nameInfo)
 
