@@ -242,6 +242,22 @@ class ToggleRun(MagicWord):
         inputState.set('debugRunning', not inputState.isSet('debugRunning'))
         return "Run mode has been toggled."
 
+class setNametag(MagicWord):
+    aliases = ['nametag']
+    desc = "Sets nametag style."
+    execLocation = MagicWordConfig.EXEC_LOC_SERVER
+    accessLevel = 'ADMIN'
+    arguments = [("nametag", int, True)]
+
+    def handleWord(self, invoker, avId, toon, *args):
+        nametag = args[0]
+        
+        if nametag < 0 or nametag > 14:
+            return 'Invalid nametag index, must be between 0 and 14, inclusive.'
+
+        toon.b_setNametagStyle(nametag)
+        return 'Nametag updated to style {}.'.format(nametag)
+
 class MaxToon(MagicWord):
     aliases = ["max", "idkfa"]
     desc = "Maxes your target toon."
