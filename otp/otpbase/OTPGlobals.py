@@ -216,6 +216,7 @@ MapHotkeyOn = 'delete'
 MapHotkeyOff = 'delete-up'
 DetectGarbageHotkey = 'shift-f11'
 PrintCamPosHotkey = 'f12'
+SprintHotkey = 'shift'
 GlobalDialogColor = (1,
  1,
  0.75,

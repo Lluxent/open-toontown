@@ -929,39 +929,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def getAnimMultiplier(self):
         return self.animMultiplier
 
-    def enableRun(self):
-        self.accept('arrow_up', self.startRunWatch)
-        self.accept('arrow_up-up', self.stopRunWatch)
-        self.accept('control-arrow_up', self.startRunWatch)
-        self.accept('control-arrow_up-up', self.stopRunWatch)
-        self.accept('alt-arrow_up', self.startRunWatch)
-        self.accept('alt-arrow_up-up', self.stopRunWatch)
-        self.accept('shift-arrow_up', self.startRunWatch)
-        self.accept('shift-arrow_up-up', self.stopRunWatch)
-
-    def disableRun(self):
-        self.ignore('arrow_up')
-        self.ignore('arrow_up-up')
-        self.ignore('control-arrow_up')
-        self.ignore('control-arrow_up-up')
-        self.ignore('alt-arrow_up')
-        self.ignore('alt-arrow_up-up')
-        self.ignore('shift-arrow_up')
-        self.ignore('shift-arrow_up-up')
-
-    def startRunWatch(self):
-
-        def setRun(ignored):
-            messenger.send('running-on')
-
-        taskMgr.doMethodLater(self.runTimeout, setRun, self.uniqueName('runWatch'))
-        return Task.cont
-
-    def stopRunWatch(self):
-        taskMgr.remove(self.uniqueName('runWatch'))
-        messenger.send('running-off')
-        return Task.cont
-
     def runSound(self):
         self.soundWalk.stop()
         base.playSfx(self.soundRun, looping=1)

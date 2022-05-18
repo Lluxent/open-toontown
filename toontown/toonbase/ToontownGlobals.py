@@ -1622,6 +1622,7 @@ DefaultBankItemId = 1350
 ToonAnimStates = set(['off',
  'neutral',
  'victory',
+ 'Sprinting',
  'Happy',
  'Sad',
  'Catching',
