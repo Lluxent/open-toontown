@@ -14,6 +14,7 @@ from toontown.pets import Pet
 from otp.otpbase import OTPLocalizer
 from otp.otpbase import OTPGlobals
 from otp.uberdog import RejectCode
+import random
 globalFriendInviter = None
 
 def showFriendInviter(avId, avName, avDisableName):
@@ -77,6 +78,7 @@ class FriendInviter(DirectFrame):
          State.State('asking', self.enterAsking, self.exitAsking),
          State.State('yes', self.enterYes, self.exitYes),
          State.State('no', self.enterNo, self.exitNo),
+         State.State('noCog', self.enterNoCog, self.exitNo),
          State.State('otherTooMany', self.enterOtherTooMany, self.exitOtherTooMany),
          State.State('maybe', self.enterMaybe, self.exitMaybe),
          State.State('down', self.enterDown, self.exitDown),
@@ -321,7 +323,7 @@ class FriendInviter(DirectFrame):
         self.bCancel.hide()
 
     def cogReplies(self, task):
-        self.fsm.request('no')
+        self.fsm.request('noCog')
         return Task.done
 
     def enterAskingPet(self):
@@ -409,6 +411,12 @@ class FriendInviter(DirectFrame):
 
     def enterNo(self):
         self['text'] = OTPLocalizer.FriendInviterFriendSaidNo % self.toonName
+        self.context = None
+        self.bOk.show()
+        return
+
+    def enterNoCog(self):
+        self['text'] = '{} {}'.format(self.toonName, random.choice(OTPLocalizer.FriendInviterCogDeclineResponse))
         self.context = None
         self.bOk.show()
         return
