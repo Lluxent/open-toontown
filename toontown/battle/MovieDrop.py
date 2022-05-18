@@ -1,4 +1,5 @@
 from direct.interval.IntervalGlobal import *
+from otp.otpbase import OTPLocalizerEnglish
 from .BattleBase import *
 from .BattleProps import *
 from .BattleSounds import *
@@ -389,7 +390,7 @@ def __createSuitTrack(drop, delay, level, alreadyDodged, alreadyTeased, target, 
                 suitTrack.append(suitGettingHit)
                 return suitTrack
             elif not suit.getSkelecog():
-                suitTrack.append(Func(suit.setChatAbsolute, SuitBattleGlobals.noHead, CFSpeech | CFTimeout))
+                suitTrack.append(Func(suit.setChatAbsolute, OTPLocalizerEnglish.SuitNoHead, CFSpeech | CFTimeout))
                 headless = True
                 suitGettingHit.append(MovieUtil.spawnHeadExplosion(suit, battle))
         suitTrack.append(suitGettingHit)

@@ -3021,8 +3021,6 @@ WATERCOOLER = list(SuitAttacks.keys()).index('Watercooler')
 WITHDRAWAL = list(SuitAttacks.keys()).index('Withdrawal')
 WRITE_OFF = list(SuitAttacks.keys()).index('WriteOff')
 
-noHead = 'So, no head?'
-
 def getFaceoffTaunt(suitName, doId):
     if suitName in SuitFaceoffTaunts:
         taunts = SuitFaceoffTaunts[suitName]
