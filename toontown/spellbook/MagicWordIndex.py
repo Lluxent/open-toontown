@@ -250,26 +250,42 @@ class MaxToon(MagicWord):
 
     def handleWord(self, invoker, avId, toon, *args):
         from toontown.toonbase import ToontownGlobals
+        from toontown.quest import Quests
+        from toontown.racing import RaceGlobals
+        from toontown.coghq import CogDisguiseGlobals
+        from toontown.suit import SuitDNA
 
-        # TODO: Handle this better, like giving out all awards, set the quest tier, stuff like that.
-        # This is mainly copied from Anesidora just so I can better work on things.
-        toon.b_setTrackAccess([1, 1, 1, 1, 1, 1, 1])
-
-        toon.b_setMaxCarry(ToontownGlobals.MaxCarryLimit)
+        toon.b_setTrackAccess([1] * 7)
+        toon.b_setMaxCarry(ToontownGlobals.MaxCarryLimit + 20)  # more gags bc more track, duh
+        
         toon.b_setQuestCarryLimit(ToontownGlobals.MaxQuestCarryLimit)
+        toon.b_setRewardHistory(Quests.ELDER_TIER, [])
 
         toon.experience.maxOutExp()
         toon.d_setExperience(toon.experience.makeNetString())
 
+        toon.inventory.zeroInv()    # clear inventory before we fill it
         toon.inventory.maxOutInv()
         toon.d_setInventory(toon.inventory.makeNetString())
 
         toon.b_setMaxHp(ToontownGlobals.MaxHpLimit)
         toon.b_setHp(ToontownGlobals.MaxHpLimit)
 
+        toon.b_setTickets(RaceGlobals.MaxTickets)
+
         toon.b_setMaxMoney(250)
-        toon.b_setMoney(toon.maxMoney)
-        toon.b_setBankMoney(toon.maxBankMoney)
+        toon.b_setMoney(toon.getMaxMoney())
+        toon.b_setBankMoney(ToontownGlobals.DefaultMaxBankMoney)
+
+        toon.b_setHoodsVisited(ToontownGlobals.Hoods)
+        toon.b_setTeleportAccess(ToontownGlobals.HoodsForTeleportAll)
+
+        toon.b_setCogParts(CogDisguiseGlobals.PartsPerSuitBitmasks)
+        toon.b_setCogLevels([ToontownGlobals.MaxCogSuitLevel] * 4)
+        toon.b_setCogTypes([SuitDNA.suitsPerDept - 1] * 4)
+
+        toon.b_setPinkSlips(ToontownGlobals.MaxPinkSlips)
+        toon.restockAllResistanceMessages(ToontownGlobals.MaxUnites)
 
         return f"Successfully maxed {toon.getName()}!"
 

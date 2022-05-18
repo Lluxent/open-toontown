@@ -105,6 +105,8 @@ CogSuitHPLevels = (15 - 1,
  30 - 1,
  40 - 1,
  50 - 1)
+MaxPinkSlips = 255
+MaxUnites = 9999
 setInterfaceFont(TTLocalizer.InterfaceFont)
 setSignFont(TTLocalizer.SignFont)
 from toontown.toontowngui import TTDialog

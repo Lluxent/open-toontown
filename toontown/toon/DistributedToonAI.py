@@ -2144,6 +2144,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def restockAllResistanceMessages(self, charges = 1):
         from toontown.chat import ResistanceChat
+        if charges > ToontownGlobals.MaxUnites:
+            charges = ToontownGlobals.MaxUnites
         msgs = []
         for menuIndex in ResistanceChat.resistanceMenu:
             for itemIndex in ResistanceChat.getItems(menuIndex):
@@ -3758,7 +3760,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         return self.pinkSlips
 
     def addPinkSlips(self, amountToAdd):
-        pinkSlips = min(self.pinkSlips + amountToAdd, 255)
+        pinkSlips = min(self.pinkSlips + amountToAdd, ToontownGlobals.MaxPinkSlips)
         self.b_setPinkSlips(pinkSlips)
 
     def removePinkSlips(self, amount):
